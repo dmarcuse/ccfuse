@@ -262,18 +262,22 @@ local ok, err = pcall(function()
 
         if evt[1] == "websocket_message" and evt[2] == server then
             local data = json.decode(evt[3])
-            
-            assert(data, "No message received")
-            assert(data.operation and operations[data.operation], "Unknown operation: " .. data.operation or "[nil]")
-            assert(data.id, "Message ID missing")
 
-            local reply = {
-                id = data.id
-            }
+            -- ignore relay messages, they're only pings for now
+            if data.source ~= "RELAY" then
+                assert(data, "No message received")
+                assert(data.operation and operations[data.operation], "Unknown operation: " .. data.operation or "[nil]")
+                assert(data.id, "Message ID missing")
+    
+                local reply = {
+                    id = data.id
+                }
+    
+                operations[data.operation](data, reply)
+    
+                socket.send(json.encode(reply))
 
-            operations[data.operation](data, reply)
-
-            socket.send(json.encode(reply))
+            end
         end
     end
 end)

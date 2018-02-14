@@ -2,7 +2,7 @@ package me.apemanzilla.ccfuse;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -21,6 +21,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import me.apemanzilla.ccfuse.packets.relay.RelayConnectionStatusPacket;
 import me.apemanzilla.ccfuse.packets.relay.RelayConnectionStatusPacket.Status;
+import me.apemanzilla.ccfuse.packets.relay.RelayPingPacket;
 
 @Slf4j
 public class CCFuseRelay extends WebSocketServer {
@@ -110,6 +111,11 @@ public class CCFuseRelay extends WebSocketServer {
 			} else {
 				from.close(CloseFrame.PROTOCOL_ERROR, "Tunnel not connected");
 			}
+		}
+
+		public void ping() {
+			if (server != null) server.sendPing();
+			if (client != null) client.send(gson.toJson(new RelayPingPacket()));
 		}
 	}
 
@@ -208,7 +214,7 @@ public class CCFuseRelay extends WebSocketServer {
 					val pinged = new AtomicInteger(0);
 					connections().stream().filter(WebSocket::isOpen).peek(c -> pinged.incrementAndGet())
 							.forEach(WebSocket::sendPing);
-					log.debug("Pinged {} connections", pinged.get());
+					log.trace("Pinged {} connections", pinged.get());
 				} catch (InterruptedException e) {}
 			}
 		});
