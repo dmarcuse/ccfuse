@@ -1,14 +1,23 @@
 local args = { ... }
 
+local function openSocket(uri)
+    if http and http.websocket then
+        return http.websocket(uri)
+    end
+
+    error("No compatible websocket API detected")
+end
+
 local openSocket = assert((http and http.websocket) or (socket and socket.websocket), "Websocket API not detected")
 
 local json = assert(require("json"), "JSON library not detected")
 local b64 = assert(require("base64"), "Base64 library not detected")
 
-local server = assert(args[1], "Server URI required")
+local server = assert(args[1], "Relay server URI required")
+local channel = assert(args[2], "Channel required")
 
--- random value to make the URI unique
-server = server .. "?u=" .. math.random()
+-- add a random value to make the URI unique
+server = server .. "/" .. channel .. "/client?u=" .. math.random()
 
 print("Connecting...")
 local socket, err = assert(openSocket(server))

@@ -6,6 +6,12 @@ import jnr.ffi.Pointer;
 import lombok.ToString;
 import me.apemanzilla.ccfuse.packets.Base64Adapter;
 
+/**
+ * A server packet that requests given data be written to a file by the client
+ * 
+ * @author apemanzilla
+ *
+ */
 @ToString(callSuper = true)
 public class ServerWritePacket extends ServerPathPacket {
 	private final long offset;

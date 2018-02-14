@@ -5,6 +5,12 @@ import lombok.ToString;
 import ru.serce.jnrfuse.FuseFillDir;
 import ru.serce.jnrfuse.struct.FuseFileInfo;
 
+/**
+ * A packet from the client containing directory information
+ * 
+ * @author apemanzilla
+ *
+ */
 @ToString(callSuper = true)
 public class ClientReaddirPacket extends ClientPacket {
 	private String[] contents;

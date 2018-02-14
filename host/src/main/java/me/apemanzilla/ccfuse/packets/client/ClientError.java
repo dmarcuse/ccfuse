@@ -2,6 +2,12 @@ package me.apemanzilla.ccfuse.packets.client;
 
 import ru.serce.jnrfuse.ErrorCodes;
 
+/**
+ * Error codes that may be returned by the client
+ * 
+ * @author apemanzilla
+ *
+ */
 public enum ClientError {
 	/**
 	 * Given path doesn't exist
@@ -32,7 +38,7 @@ public enum ClientError {
 	 * Given path is not empty
 	 */
 	NOTEMPTY(-ErrorCodes.ENOTEMPTY()),
-	
+
 	/**
 	 * Out of space
 	 */

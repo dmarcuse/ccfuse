@@ -7,6 +7,12 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+/**
+ * A {@link TypeAdapter} for de/serializing byte arrays as base64
+ * 
+ * @author apemanzilla
+ *
+ */
 public class Base64Adapter extends TypeAdapter<byte[]> {
 	@Override
 	public void write(JsonWriter out, byte[] value) throws IOException {
