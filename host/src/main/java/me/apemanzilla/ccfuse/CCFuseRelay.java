@@ -2,8 +2,9 @@ package me.apemanzilla.ccfuse;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.java_websocket.WebSocket;
@@ -166,8 +167,18 @@ public class CCFuseRelay extends WebSocketServer {
 		log.info("{} disconnected: channel {}, role {}", conn.getRemoteSocketAddress(), cfg.getChannel(),
 				cfg.getRole());
 
-		log.debug("Current {} tunnel(s) open", tunnels.size());
+		val i = tunnels.entrySet().iterator();
 
+		while (i.hasNext()) {
+			val it = i.next();
+
+			if (it.getValue().server == null && it.getValue().client == null) {
+				log.info("Tunnel {} closed", it.getKey());
+				i.remove();
+			}
+		}
+
+		log.debug("Current {} tunnel(s) open", tunnels.size());
 	}
 
 	@Override
@@ -189,5 +200,21 @@ public class CCFuseRelay extends WebSocketServer {
 	@Override
 	public void onStart() {
 		log.info("Hosting relay server on {}", getAddress());
+
+		val pingThread = new Thread(() -> {
+			while (true) {
+				try {
+					Thread.sleep(10000);
+					val pinged = new AtomicInteger(0);
+					connections().stream().filter(WebSocket::isOpen).peek(c -> pinged.incrementAndGet())
+							.forEach(WebSocket::sendPing);
+					log.debug("Pinged {} connections", pinged.get());
+				} catch (InterruptedException e) {}
+			}
+		});
+
+		pingThread.setName("CCFuse Relay Pinger");
+		pingThread.setDaemon(true);
+		pingThread.start();
 	}
 }
